@@ -522,7 +522,7 @@ func (p *parser) parseString(name string, option *Option) (any, error) {
 		return nil, nil
 	}
 	value := p.shift()
-	if err := validateEnum(option, value, "Expected '%s' to be one of %s; got %s"); err != nil {
+	if err := validateEnum(option, name, value, "Expected '%s' to be one of %s; got %s"); err != nil {
 		return nil, err
 	}
 	return value, nil
@@ -543,7 +543,7 @@ func (p *parser) parseNumeric(name string, option *Option) (any, error) {
 		n, _ := strconv.ParseInt(p.shift(), 10, 64)
 		value = n
 	}
-	if err := validateEnumValue(option, value, "Expected '%s' to be one of %s; got %s"); err != nil {
+	if err := validateEnumValue(option, name, value, "Expected '%s' to be one of %s; got %s"); err != nil {
 		return nil, err
 	}
 	return value, nil
@@ -554,7 +554,7 @@ func (p *parser) parseArray(name string, option *Option) (any, error) {
 	for p.currentIsValue() {
 		value := p.shift()
 		if value != "" {
-			if err := validateEnum(option, value,
+			if err := validateEnum(option, name, value,
 				"Expected all values of '%s' to be one of %s; got %s"); err != nil {
 				return nil, err
 			}
@@ -588,7 +588,7 @@ func (p *parser) parseHash(name string) (any, error) {
 	return h, nil
 }
 
-func validateEnum(option *Option, value string, message string) error {
+func validateEnum(option *Option, name, value string, message string) error {
 	if option == nil || len(option.Enum) == 0 {
 		return nil
 	}
@@ -598,10 +598,10 @@ func validateEnum(option *Option, value string, message string) error {
 		}
 	}
 	return newError(KindMalformattedArgument,
-		sprintfMsg(message, option.HumanName(), option.EnumToS(), value))
+		sprintfMsg(message, name, option.EnumToS(), value))
 }
 
-func validateEnumValue(option *Option, value any, message string) error {
+func validateEnumValue(option *Option, name string, value any, message string) error {
 	if option == nil || len(option.Enum) == 0 {
 		return nil
 	}
@@ -612,7 +612,7 @@ func validateEnumValue(option *Option, value any, message string) error {
 		}
 	}
 	return newError(KindMalformattedArgument,
-		sprintfMsg(message, option.HumanName(), option.EnumToS(), got))
+		sprintfMsg(message, name, option.EnumToS(), got))
 }
 
 // sprintfMsg fills a Ruby `msg % [a, b, c]` template with exactly three %s.
