@@ -106,31 +106,23 @@ func (b *Base) printableCommands(all, subcommand bool) [][]string {
 	return list
 }
 
-// collapseWhitespace mirrors gsub(/\s+/m, ' ').
+// collapseWhitespace mirrors gsub(/\s+/m, ' '): every maximal run of whitespace
+// (including a leading or trailing run) becomes a single space.
 func collapseWhitespace(s string) string {
 	var b strings.Builder
 	inSpace := false
 	for _, r := range s {
-		if r == ' ' || r == '\t' || r == '\n' || r == '\r' || r == '\f' || r == '\v' {
-			inSpace = true
+		if isSpace(r) {
+			if !inSpace {
+				b.WriteByte(' ')
+				inSpace = true
+			}
 			continue
 		}
-		if inSpace {
-			b.WriteByte(' ')
-			inSpace = false
-		}
+		inSpace = false
 		b.WriteRune(r)
 	}
-	// Ruby's \s+ also collapses trailing/leading runs to a single space; a
-	// leading run becomes a leading space and a trailing run a trailing space.
-	res := b.String()
-	if len(s) > 0 && isSpace(rune(s[0])) {
-		res = " " + res
-	}
-	if len(s) > 0 && isSpace(rune(s[len(s)-1])) {
-		res += " "
-	}
-	return res
+	return b.String()
 }
 
 func isSpace(r rune) bool {
