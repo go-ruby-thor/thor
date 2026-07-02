@@ -34,6 +34,34 @@ func buildCheckCLI(t *testing.T) *Base {
 	return b
 }
 
+// TestCommandHelpGoldenDefaultsAndEnum renders the mirrored greet command help
+// as a deterministic golden (no ruby oracle), covering the "# Default:" and
+// "# Possible values:" rows of printOptions on every platform (the Windows lane
+// has no thor gem, so the oracle diff is skipped there).
+func TestCommandHelpGoldenDefaultsAndEnum(t *testing.T) {
+	b := buildCheckCLI(t)
+	got, err := b.CommandHelp("greet")
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "Usage:\n" +
+		"  oracle.rb greet NAME\n" +
+		"\n" +
+		"Options:\n" +
+		"  -g, [--greeting=GREETING]                          # The greeting to use\n" +
+		"                                                     # Default: Hello\n" +
+		"      [--loud], [--no-loud], [--skip-loud]           # Shout it\n" +
+		"      [--count=N]                                    # Times\n" +
+		"                                                     # Possible values: 1, 2, 3\n" +
+		"  -v, [--verbose], [--no-verbose], [--skip-verbose]  # Be verbose\n" +
+		"\n" +
+		"Description:\n" +
+		"  This command greets the person named NAME with an optional greeting.\n"
+	if got != want {
+		t.Fatalf("command help mismatch:\n--- got ---\n%q\n--- want ---\n%q", got, want)
+	}
+}
+
 func TestCheckDumpHelp(t *testing.T) {
 	if os.Getenv("THOR_DUMP") == "" {
 		t.Skip("dump only")
