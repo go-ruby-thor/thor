@@ -12,11 +12,11 @@ import (
 
 // Regexes ported verbatim from Thor::Options / Thor::Arguments.
 var (
-	numericRe   = regexp.MustCompile(`[-+]?(\d*\.\d+|\d+)`)
-	longRe      = regexp.MustCompile(`^(--\w+(?:-\w+)*)$`)
-	shortRe     = regexp.MustCompile(`^(-[a-zA-Z])$`)
-	eqRe        = regexp.MustCompile(`^(--\w+(?:-\w+)*|-[a-zA-Z])=(.*)$`)
-	shortSqRe   = regexp.MustCompile(`^-([a-zA-Z]{2,})$`)
+	numericRe  = regexp.MustCompile(`[-+]?(\d*\.\d+|\d+)`)
+	longRe     = regexp.MustCompile(`^(--\w+(?:-\w+)*)$`)
+	shortRe    = regexp.MustCompile(`^(-[a-zA-Z])$`)
+	eqRe       = regexp.MustCompile(`^(--\w+(?:-\w+)*|-[a-zA-Z])=(.*)$`)
+	shortSqRe  = regexp.MustCompile(`^-([a-zA-Z]{2,})$`)
 	shortNumRe = regexp.MustCompile(`^(-[a-zA-Z])([-+]?(?:\d*\.\d+|\d+))$`)
 	noOrSkipRe = regexp.MustCompile(`^--(no|skip)-([-\w]+)$`)
 )
@@ -653,7 +653,7 @@ func (p *parser) checkExclusive() error {
 			names := p.namesToSwitchNames(intersect(ex, opts))
 			quoted := quoteAll(names)
 			return newError(KindExclusiveArgument,
-				"Found exclusive option "+strings.Join(quoted, ", "))
+				"Found exclusive options "+strings.Join(quoted, ", "))
 		}
 	}
 	return nil
@@ -673,7 +673,7 @@ func (p *parser) checkAtLeastOne() error {
 			names := p.namesToSwitchNames(group)
 			quoted := quoteAll(names)
 			return newError(KindAtLeastOneRequiredArgument,
-				"Not found at least one of required option "+strings.Join(quoted, ", "))
+				"Not found at least one of required options "+strings.Join(quoted, ", "))
 		}
 	}
 	return nil

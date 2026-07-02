@@ -247,7 +247,7 @@ func printOptions(options []*Option, groupName string, width int) []string {
 // emits one line; a bare say emits an empty line).
 type lineWriter struct{ lines []string }
 
-func (w *lineWriter) say(s string)          { w.lines = append(w.lines, s) }
-func (w *lineWriter) blank()                { w.lines = append(w.lines, "") }
-func (w *lineWriter) append(ls []string)    { w.lines = append(w.lines, ls...) }
-func (w *lineWriter) String() string        { return strings.Join(w.lines, "\n") + "\n" }
+func (w *lineWriter) say(s string)       { w.lines = append(w.lines, s) }
+func (w *lineWriter) blank()             { w.lines = append(w.lines, "") }
+func (w *lineWriter) append(ls []string) { w.lines = append(w.lines, ls...) }
+func (w *lineWriter) String() string     { return strings.Join(w.lines, "\n") + "\n" }
