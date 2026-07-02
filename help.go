@@ -180,18 +180,6 @@ func classOptionsHelpSeeded(seed, classOptions []*Option, width int) []string {
 // printOptions renders one option table block (Thor::Base#print_options): a
 // "<Group> options:" / "Options:" heading, the aligned table, and a blank line.
 func printOptions(options []*Option, groupName string, width int) []string {
-	visible := false
-	for _, o := range options {
-		if !o.Hide {
-			visible = true
-			break
-		}
-	}
-	if len(options) == 0 || !visible {
-		if len(options) == 0 {
-			return nil
-		}
-	}
 	if len(options) == 0 {
 		return nil
 	}
