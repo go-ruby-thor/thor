@@ -69,20 +69,6 @@ func TestParseArrayEmpty(t *testing.T) {
 	}
 }
 
-// TestValueLooksLikeSwitchManyDashes: three or more leading dashes still look
-// like a switch prefix per /^-{1,2}\S+/.
-func TestValueLooksLikeSwitchManyDashes(t *testing.T) {
-	if !valueLooksLikeSwitch("---x") {
-		t.Fatalf("valueLooksLikeSwitch(---x) = false, want true")
-	}
-	if valueLooksLikeSwitch("--") {
-		t.Fatalf("valueLooksLikeSwitch(--) = true, want false (no \\S+ after dashes)")
-	}
-	if valueLooksLikeSwitch("nodash") {
-		t.Fatalf("valueLooksLikeSwitch(nodash) = true, want false")
-	}
-}
-
 // TestParseNoSkipStringBareReturnsNil: a "--no-<string>" switch given bare
 // resolves through parse_peek's no_or_skip arm to a nil value (option cleared).
 func TestParseNoSkipStringBareReturnsNil(t *testing.T) {
@@ -120,6 +106,26 @@ func TestParseNumericLazyDefaultBare(t *testing.T) {
 	res := mustParse(t, []*Option{n}, []string{"--count"})
 	if v := getVal(t, res, "count"); v != int64(7) {
 		t.Fatalf("--count bare with lazy default = %#v, want 7", v)
+	}
+}
+
+// TestParseByTypeUnknownType: an Option carrying a bogus (non-standard) Typ
+// falls through parse_by_type to a nil value (Type is a public string field, so
+// callers can construct one outside the five valid types).
+func TestParseByTypeUnknownType(t *testing.T) {
+	p := &parser{}
+	got, err := p.parseByType(Type("bogus"), "--x", &Option{Name: "x", Typ: Type("bogus")})
+	if err != nil || got != nil {
+		t.Fatalf("parseByType(bogus) = (%#v, %v), want (nil, nil)", got, err)
+	}
+}
+
+// TestDefaultBannerUnknownType: defaultBanner on a bogus Typ returns "" via its
+// final fallback.
+func TestDefaultBannerUnknownType(t *testing.T) {
+	o := &Option{Name: "x", Typ: Type("bogus")}
+	if b := o.defaultBanner(); b != "" {
+		t.Fatalf("defaultBanner(bogus) = %q, want %q", b, "")
 	}
 }
 

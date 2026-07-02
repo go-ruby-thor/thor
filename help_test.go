@@ -46,6 +46,29 @@ func TestHelpClassLevel(t *testing.T) {
 	}
 }
 
+func TestHelpClassLevelGrouped(t *testing.T) {
+	// A grouped class option exercises the non-default group branch of
+	// classOptionsHelp (as opposed to the seeded command-help variant).
+	b := NewBase("app", Config{Basename: "app", TerminalWidth: 80})
+	b.ClassOptions = []*Option{
+		mo(t, "verbose", Option{Typ: Boolean, Desc: "Verbose"}),
+		mo(t, "env", Option{Typ: String, Desc: "Env", Group: "Runtime"}),
+	}
+	b.AddCommand(NewCommand("go", "Run it", "go", nil))
+	want := "Commands:\n" +
+		"  app go  # Run it\n" +
+		"\n" +
+		"Options:\n" +
+		"  [--verbose], [--no-verbose], [--skip-verbose]  # Verbose\n" +
+		"\n" +
+		"Runtime options:\n" +
+		"  [--env=ENV]  # Env\n" +
+		"\n"
+	if got := b.Help(); got != want {
+		t.Fatalf("Help mismatch:\n--- got ---\n%q\n--- want ---\n%q", got, want)
+	}
+}
+
 func TestHelpPackageName(t *testing.T) {
 	b := NewBase("x", Config{TerminalWidth: 80, PackageName: "MyApp"})
 	b.AddCommand(NewCommand("go", "Go", "go", nil))

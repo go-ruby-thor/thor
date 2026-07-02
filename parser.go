@@ -321,10 +321,9 @@ func (p *parser) currentIsSwitch() (match bool, isSwitch bool) {
 	if p.isTreatedAsValue {
 		return false, false
 	}
-	pk, ok := p.peek()
-	if !ok {
-		return false, false
-	}
+	// The sole caller (run) invokes this only after a successful peek with no
+	// intervening shift, so peek here always yields a token.
+	pk, _ := p.peek()
 	switch {
 	case longRe.MatchString(pk):
 		return true, p.switchQ(longRe.FindStringSubmatch(pk)[1])
@@ -373,19 +372,19 @@ func (p *parser) currentIsValue() bool {
 	return !valueLooksLikeSwitch(pk)
 }
 
-// valueLooksLikeSwitch implements /^-{1,2}\S+/ (a dash-led non-space run).
+// valueLooksLikeSwitch implements /^-{1,2}\S+/: one or two leading dashes
+// followed by at least one non-space character. With three or more dashes the
+// greedy -{1,2} consumes two and \S+ matches the next dash, so it still counts.
 func valueLooksLikeSwitch(s string) bool {
 	if !strings.HasPrefix(s, "-") {
 		return false
 	}
-	rest := strings.TrimLeft(s, "-")
-	dashes := len(s) - len(strings.TrimPrefix(s, "-"))
-	if dashes < 1 || dashes > 2 {
-		// more than two leading dashes: /^-{1,2}\S+/ still matches the first
-		// two dashes then \S+ so treat as switch-looking.
-		return len(rest) > 0 || dashes >= 1
+	// Consume one or two leading dashes, then require a non-space remainder.
+	rest := s[1:]
+	if strings.HasPrefix(rest, "-") {
+		rest = rest[1:]
 	}
-	return len(rest) > 0
+	return len(rest) > 0 && !strings.ContainsAny(rest[:1], " \t")
 }
 
 func (p *parser) switchQ(arg string) bool {

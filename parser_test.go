@@ -502,7 +502,10 @@ func TestValueLooksLikeSwitch(t *testing.T) {
 		"plain":  false,
 		"--foo":  true,
 		"-f":     true,
-		"---bar": true,
+		"---bar": true,  // 3+ dashes: greedy -{1,2} then \S+ matches the 3rd dash
+		"--":     false, // no \S after the two dashes
+		"-":      false, // no \S after the one dash
+		"- x":    false, // dash then space fails \S+
 	}
 	for in, want := range cases {
 		if got := valueLooksLikeSwitch(in); got != want {
