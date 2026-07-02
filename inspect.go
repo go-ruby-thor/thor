@@ -47,24 +47,6 @@ func rubyInspect(s string) string {
 	return b.String()
 }
 
-// valueInspect renders a parsed value with Ruby #inspect semantics, used in
-// enum/malformatted error messages (a bare String is quoted; numbers plain).
-func valueInspect(v any) string {
-	switch x := v.(type) {
-	case string:
-		return rubyInspect(x)
-	case bool:
-		return strconv.FormatBool(x)
-	case int64:
-		return strconv.FormatInt(x, 10)
-	case float64:
-		return formatFloat(x)
-	case nil:
-		return "nil"
-	}
-	return valueToDisplay(v)
-}
-
 // valueToDisplay renders a value the way Ruby String() / to_s would, used for
 // "# Default:" lines where the raw value is printed without inspection quoting.
 func valueToDisplay(v any) string {
